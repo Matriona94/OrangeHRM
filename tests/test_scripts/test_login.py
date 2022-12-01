@@ -63,4 +63,4 @@ class TestLogin:
         # self.lp.input_password(self.password_text)
         # self.lp.click_login_button()
 
-        self.logger.info("test_login_page *** END")
+
