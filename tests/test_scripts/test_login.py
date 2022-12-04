@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 def test_login_test():
@@ -18,6 +19,17 @@ def test_login_test():
     text_box.send_keys("admin123")
     submit_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
     submit_button.click()
+
+    import time
+
+    driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index")
+
+    time.sleep(3)
+
+    url = driver.current_url
+
+    driver.find_element(by=By.CLASS_NAME, value="oxd-userdropdown").click()
+    driver.find_element(by=By.LINK_TEXT, value="Logout").click()
 
     driver.quit()
 
