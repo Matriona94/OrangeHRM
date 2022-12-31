@@ -1,23 +1,66 @@
+import time
+import pytest
+import time
+import random
 from selenium import webdriver
-from selenium.webdriver.common.by import By
+
+from page_objects.login_page import LoginPage
+
+from utilities.read_properties import ReadLoginConfig
+
+from utilities.custom_logger import LogGen
 
 
-def test_login_test():
-    driver = webdriver.Chrome()
+class TestLogin:
+    login_config = ReadLoginConfig()
+    base_url = login_config.get_login_info('base_url')
+    logger = LogGen.loggen()
 
-    driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
+    username_text = login_config.get_login_info('username_text')
+    password_text = login_config.get_login_info('password_text')
 
-    title = driver.title
-    assert title == "OrangeHRM"
+    @pytest.fixture(autouse=False)
+    def setup_test_script(self):
+        yield
+        self.driver.quit()
 
-    driver.implicitly_wait(0.5)
+    @pytest.mark.sanity
+    @pytest.mark.regression
+    def test_login_page_visibility_bad(self, setup):
+        self.logger.info("test_login_page_visibility_bad *** START")
+        self.driver = setup
+        self.driver.get(self.base_url)
 
-    text_box = driver.find_element(by=By.NAME, value="username")
-    text_box.send_keys("Admin")
-    text_box = driver.find_element(by=By.NAME, value="password")
-    text_box.send_keys("admin123")
-    submit_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
-    submit_button.click()
+        self.lp = LoginPage(self.driver)
+        time.sleep(1)
+        self.lp.logo_top_visibility_bad()
+        self.logger.info("test_login_page_visibility_bad *** END")
 
-    driver.quit()
+    @pytest.mark.regression
+    def test_login_page(self, setup):
+        self.logger.info("test_login_page *** START")
+        self.driver = setup
+        self.driver.get(self.base_url)
 
+        self.lp = LoginPage(self.driver)
+        self.lp.check_url()
+        self.lp.login_page_visibility()
+
+        self.lp.click_login_button()
+        self.lp.message_invalid_required_username()
+        self.lp.message_invalid_required_password()
+
+        self.lp.input_random_username()
+        self.lp.input_random_password()
+        self.lp.click_login_button()
+        self.lp.message_invalid_credentials()
+
+        self.lp.input_paragraph_username()
+        self.lp.input_paragraph_password()
+        self.lp.click_login_button()
+
+        # self.lp.input_username(self.username_text)
+        # self.lp.input_password(self.password_text)
+        # self.lp.click_login_button()
+
+        self.logger.info("test_login_page *** END")
